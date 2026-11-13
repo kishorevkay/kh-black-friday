@@ -1,0 +1,8 @@
+.claude
+.vercel
+.env*
+HANDOVER-ENV.txt
+dev/
+explainer/
+README.md
+.git

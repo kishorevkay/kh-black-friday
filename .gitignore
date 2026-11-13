@@ -1,0 +1,10 @@
+# secrets and local-only files: never commit
+HANDOVER-ENV.txt
+.env*
+.vercel/
+node_modules/
+.DS_Store
+.claude/
+# working files (screenshots, source art, prompts) and the explainer video project: not part of the site
+dev/
+explainer/

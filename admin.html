@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.ico?v=1" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=1">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=1">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
+<title>KH Black Friday · Leads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --red: #E60514; --ink: #0b0b0b; --panel: #151515; --line: #2a2a2a; --text: #f4f4f4; --soft: #9a9a9a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: var(--text); font: 14px/1.45 Montserrat, system-ui, sans-serif; }
+  header { border-bottom: 1px solid var(--line); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  header .brand { display: flex; align-items: center; gap: 16px; }
+  header img { height: 26px; display: block; }
+  header h1 { font: 800 18px/1.1 Montserrat, sans-serif; margin: 0; }
+  header small { color: var(--soft); font-size: 12px; }
+  .btn { border: 1.5px solid #444; background: transparent; color: inherit; border-radius: 999px; padding: 8px 16px; font: 600 13px Montserrat, sans-serif; cursor: pointer; }
+  .btn:hover { border-color: #777; }
+  .btn.solid { background: var(--red); border-color: var(--red); color: #fff; }
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 60px; }
+  .login { max-width: 360px; margin: 12vh auto; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 28px; text-align: center; }
+  .login h2 { font: 800 24px Montserrat, sans-serif; margin: 0 0 6px; }
+  .login input { width: 100%; font: 600 20px Montserrat; letter-spacing: .3em; text-align: center; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px; margin: 16px 0 12px; background: #0b0b0b; color: var(--text); }
+  .err { color: #ff6b74; font-weight: 600; min-height: 20px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .kpi b { display: block; font: 800 28px/1.1 Montserrat, sans-serif; }
+  .kpi:first-child b { color: var(--red); }
+  .kpi span { color: var(--soft); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 22px 0 12px; }
+  .bar input, .bar select { font: 500 14px Montserrat; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--text); }
+  .bar input { flex: 1; min-width: 200px; }
+  .wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+  table { border-collapse: collapse; width: 100%; min-width: 900px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--soft); background: #1b1b1b; }
+  td .sub, td.sub { color: var(--soft); font-size: 12px; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(230,5,20,.16); color: #ff8d94; white-space: nowrap; }
+  .empty { padding: 40px; text-align: center; color: var(--soft); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="assets/kh-logo-red.svg" alt="upGrad KnowledgeHut"><div><h1>Black Friday · Leads</h1><small id="stamp">Black Friday Sale 2026</small></div></div>
+  <div id="actions" hidden><button class="btn" id="refresh">Refresh</button> <button class="btn" id="csv">Download CSV</button> <button class="btn" id="out">Log out</button></div>
+</header>
+
+<main>
+  <form class="login" id="login">
+    <h2>Admin</h2>
+    <div>Enter the admin PIN</div>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" aria-label="Admin PIN">
+    <div class="err" id="err" aria-live="polite"></div>
+    <button class="btn solid" type="submit">Open dashboard</button>
+  </form>
+
+  <section id="dash" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="bar">
+      <input id="q" type="search" placeholder="Search name, mobile, email">
+      <select id="fCourse"><option value="">All courses</option><option>Project Management</option><option>SAFe &amp; Agile</option><option>Generative AI</option><option>IT Service Management</option><option>All courses</option><option>Not sure yet</option></select>
+      <select id="fFrom"><option value="">From anywhere</option></select>
+    </div>
+    <div class="wrap"><table>
+      <thead><tr><th>When (IST)</th><th>Name</th><th>Mobile</th><th>Email</th><th>Course</th><th>Came from</th><th>Device · site</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var $ = function(s){ return document.querySelector(s); };
+  var KEY = "khbf_admin_pin", pin = "", leads = [], timer = 0;
+  var COURSES = ["Project Management", "SAFe & Agile", "Generative AI", "IT Service Management", "All courses", "Not sure yet"];
+  function store(v){ try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch (e) {} }
+  function saved(){ try { return sessionStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
+  function esc(t){ return String(t == null ? "" : t).replace(/[&<>"]/g, function(c){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function ist(iso){ if (!iso) return ""; return new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }); }
+  function istDay(iso){ return new Date(iso).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); }
+
+  function load(){
+    return fetch("/api/admin", { headers: { "x-admin-pin": pin }, cache: "no-store" }).then(function(r){
+      if (r.status === 401) throw new Error("Wrong PIN");
+      if (!r.ok) throw new Error("Could not load leads (" + r.status + ")");
+      return r.json();
+    }).then(function(d){ leads = d.leads || []; $("#stamp").textContent = leads.length + " leads · updated " + ist(d.at); render(); });
+  }
+  function show(on){ $("#login").hidden = on; $("#dash").hidden = !on; $("#actions").hidden = !on; }
+  function start(p){
+    pin = p; $("#err").textContent = "";
+    return load().then(function(){ store(pin); show(true); clearInterval(timer); timer = setInterval(function(){ if (!document.hidden) load().catch(function(){}); }, 30000); })
+      .catch(function(e){ store(""); show(false); $("#err").textContent = e.message; });
+  }
+
+  /* where a lead came from, read from the landing link's tags and the referring page:
+     1. a messaging utm_medium (email / sms / push / whatsapp),
+     2. otherwise utm_source (the tracking links in the README),
+     3. otherwise the ad click id the platform adds by itself (fbclid = Meta, gclid = Google, …),
+     4. otherwise the referring site or app.
+     Paid clicks get " ad". The detail line is campaign · ad set or keyword (utm_term) · ad (utm_content) · placement. */
+  var SRC = [ // utm_source → label (first match wins)
+    // brand placements in partner apps (the campaign team's tags, e.g. utm_source=Zepto_BRD&utm_medium=Brand); any other <Name>_BRD shows as <Name>
+    [/^zepto(_brd)?$/, "Zepto"], [/^zomato(_brd)?$/, "Zomato"], [/^(gpay|googlepay|google_pay)(_brd)?$/, "GPay"],
+    [/^(ig|instagram)/, "Instagram"], [/^(fb|facebook)/, "Facebook"], [/^(msg|messenger)$/, "Messenger"], [/^an$/, "Meta Audience Network"], [/^(meta|fbig)$/, "Meta"],
+    [/^(youtube|yt)$/, "YouTube"], [/^(google|adwords|gads)/, "Google"], [/^(linkedin|li)$/, "LinkedIn"], [/^(x|twitter|tw)$/, "X (Twitter)"],
+    [/^(whatsapp|wa)$/, "WhatsApp"], [/^(telegram|tg)$/, "Telegram"], [/^(sms|text)$/, "SMS"], [/^(push|notification)/, "Push notification"],
+    [/^(clevertap|email|e-?mail|newsletter|mailer|mailchimp|sendgrid|netcore|moengage|webengage)/, "Email"], [/^upgrad/, "upGrad / KH website"],
+    [/^(qr|qrcode|print|poster|offline)/, "QR / offline"], [/^(bing|microsoft)/, "Bing"], [/^(snapchat|snap)$/, "Snapchat"], [/^pinterest$/, "Pinterest"], [/^reddit$/, "Reddit"], [/^quora$/, "Quora"]
+  ];
+  var REF = [ // referring host (web, or the Android app id) → label; email and apps before the general sites
+    // partner apps and sites (Android passes the app id as the referrer when the app opens the link in the browser)
+    [/^com\.zeptoconsumerapp$/, "Zepto"], [/(^|\.)zeptonow\.com$/, "Zepto"], [/^com\.application\.zomato$/, "Zomato"], [/(^|\.)zomato\.com$/, "Zomato"],
+    [/^com\.google\.android\.apps\.nbu\.paisa\.user$/, "GPay"], [/(^|\.)pay\.google\.com$/, "GPay"],
+    [/^com\.google\.android\.gm$/, "Email"], [/(^|\.)(mail\.google\.com|outlook\.(live|office|office365)\.com|mail\.yahoo\.com)$/, "Email"],
+    [/^com\.instagram\.android$/, "Instagram"], [/^com\.facebook\.(katana|lite|orca)$/, "Facebook"], [/^com\.whatsapp(\.w4b)?$/, "WhatsApp"], [/^org\.telegram\.messenger$/, "Telegram"],
+    [/^com\.linkedin\.android$/, "LinkedIn"], [/^com\.google\.android\.youtube$/, "YouTube"], [/^com\.google\.android\.googlequicksearchbox$/, "Google"],
+    [/(^|\.)instagram\.com$/, "Instagram"], [/(^|\.)(facebook\.com|fb\.com|fb\.me|messenger\.com)$/, "Facebook"], [/(^|\.)(youtube\.com|youtu\.be)$/, "YouTube"],
+    [/(^|\.)google\.[a-z.]+$/, "Google"], [/(^|\.)bing\.com$/, "Bing"], [/(^|\.)(linkedin\.com|lnkd\.in)$/, "LinkedIn"], [/(^|\.)(t\.co|twitter\.com|x\.com)$/, "X (Twitter)"],
+    [/(^|\.)(whatsapp\.com|wa\.me)$/, "WhatsApp"], [/(^|\.)(t\.me|telegram\.org)$/, "Telegram"], [/(^|\.)(upgrad|knowledgehut)\.com$/, "upGrad / KH website"],
+    [/(^|\.)(duckduckgo\.com|search\.yahoo\.com)$/, "Search"], [/(^|\.)snapchat\.com$/, "Snapchat"], [/(^|\.)(pinterest\.[a-z.]+|pin\.it)$/, "Pinterest"], [/(^|\.)reddit\.com$/, "Reddit"], [/(^|\.)quora\.com$/, "Quora"]
+  ];
+  var CLICK = [["fbclid", "Meta"], ["gclid", "Google"], ["gbraid", "Google"], ["wbraid", "Google"], ["dclid", "Google"], ["msclkid", "Bing"], ["li_fat_id", "LinkedIn"], ["twclid", "X (Twitter)"], ["ttclid", "TikTok"], ["sccid", "Snapchat"], ["epik", "Pinterest"]];
+  var ADS = /^(Instagram|Facebook|Messenger|Meta|Meta Audience Network|Google|YouTube|LinkedIn|X \(Twitter\)|Bing|TikTok|Snapchat|Pinterest)$/;
+  function first(list, s){ for (var i = 0; i < list.length; i++) if (list[i][0].test(s)) return list[i][1]; return ""; }
+  function cameFrom(l){
+    var q = new URLSearchParams(l.source || ""), src = (q.get("utm_source") || "").trim().toLowerCase(), med = (q.get("utm_medium") || "").trim().toLowerCase();
+    var host = String(l.ref || "").toLowerCase().split("/")[0], fromRef = host ? first(REF, host) : "", click = "", label;
+    for (var i = 0; i < CLICK.length; i++) if (q.has(CLICK[i][0])) { click = CLICK[i][1]; break; }
+    // a messaging medium decides first: one platform (e.g. CleverTap) sends email, push and SMS alike
+    var ch = /(^|_)(e-?mail|newsletter)($|_)/.test(med) ? "Email" : med === "sms" ? "SMS" : /^push/.test(med) ? "Push notification" : /^whatsapp/.test(med) ? "WhatsApp" : "";
+    if (ch) label = ch;
+    else if (src) label = first(SRC, src) || q.get("utm_source").trim().replace(/[_\s-]+brd$/i, "");
+    else if (click) label = click;
+    else if (q.has("igshid") || q.has("igsh")) label = "Instagram"; // a shared Instagram link
+    else if (fromRef) label = fromRef;
+    else if (host) label = host.replace(/^www\./, "");
+    else label = l.via === "redirect" ? "Tags lost in redirect" : "Direct / unknown"; // via: came through upgrad.com's no-slash redirect
+    if (label === "Meta" && /^(Instagram|Facebook)$/.test(fromRef)) label = fromRef; // a bare fbclid: the referrer tells which app
+    if ((click || /(^|_)(paid|cpc|ppc|cpm|cpv|ads?|display|sponsored|paidsocial)($|_)/.test(med)) && ADS.test(label)) label += " ad";
+    var t = function(k){ return (q.get(k) || "").trim(); };
+    return { label: label, detail: [t("utm_campaign"), t("utm_term"), t("utm_content"), t("placement")].filter(Boolean).join(" · "),
+      medium: t("utm_medium"), adset: t("utm_term"), placement: t("placement") };
+  }
+  function filtered(){
+    var q = $("#q").value.trim().toLowerCase(), co = $("#fCourse").value, fr = $("#fFrom").value;
+    return leads.filter(function(l){
+      if (co && l.course !== co) return false;
+      if (fr && cameFrom(l).label !== fr) return false;
+      if (!q) return true;
+      return [l.name, l.phone, l.email].join(" ").toLowerCase().indexOf(q) > -1;
+    });
+  }
+  function render(){
+    var n = function(f){ return leads.filter(f).length; };
+    var today = istDay(new Date().toISOString());
+    var k = [["Leads", leads.length], ["Today", n(function(l){ return istDay(l.created) === today; })]];
+    COURSES.forEach(function(c){ k.push([c, n(function(l){ return l.course === c; })]); });
+    k.push(["From ads", n(function(l){ return / ad$/.test(cameFrom(l).label); })]);
+    $("#kpis").innerHTML = k.map(function(x){ return '<div class="kpi"><b>' + x[1] + '</b><span>' + esc(x[0]) + '</span></div>'; }).join("");
+    var ff = $("#fFrom"), cur = ff.value, seen = {};
+    leads.forEach(function(l){ seen[cameFrom(l).label] = (seen[cameFrom(l).label] || 0) + 1; });
+    ff.innerHTML = '<option value="">From anywhere</option>' + Object.keys(seen).sort().map(function(s){ return '<option value="' + esc(s) + '"' + (s === cur ? " selected" : "") + ">" + esc(s) + " (" + seen[s] + ")</option>"; }).join("");
+    var rows = filtered();
+    $("#rows").innerHTML = rows.length ? rows.map(function(l){
+      var c = cameFrom(l);
+      return "<tr><td>" + esc(ist(l.created)) + "</td><td>" + esc(l.name) + "</td><td>" + esc(l.phone) + "</td><td>" + esc(l.email) + "</td>" +
+        '<td><span class="tag">' + esc(l.course) + "</span></td>" +
+        "<td>" + esc(c.label) + (c.detail ? '<div class="sub">' + esc(c.detail) + "</div>" : "") + "</td>" +
+        '<td class="sub">' + esc(l.device) + (l.site ? "<br>" + esc(l.site) : "") + "</td></tr>";
+    }).join("") : '<tr><td colspan="7" class="empty">' + (leads.length ? "No leads match these filters." : "No leads yet.") + "</td></tr>";
+  }
+  function csv(){
+    var cols = ["created_ist", "name", "mobile", "email", "course", "came_from", "campaign", "ad", "medium", "ad_set_or_keyword", "placement", "referrer", "source", "device", "site", "id"];
+    var cell = function(v){ v = String(v == null ? "" : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+    var lines = [cols.join(",")].concat(filtered().map(function(l){
+      var q = new URLSearchParams(l.source || ""), c = cameFrom(l);
+      return [ist(l.created), l.name, l.phone, l.email, l.course, c.label, q.get("utm_campaign"), q.get("utm_content"), c.medium, c.adset, c.placement, l.ref, l.source, l.device, l.site, l.id].map(cell).join(",");
+    }));
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
+    a.download = "kh-black-friday-leads-" + new Date().toISOString().slice(0, 10) + ".csv"; a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  }
+
+  $("#login").addEventListener("submit", function(e){ e.preventDefault(); start($("#pin").value.trim()); });
+  ["#q", "#fCourse", "#fFrom"].forEach(function(s){ $(s).addEventListener("input", render); });
+  $("#refresh").addEventListener("click", function(){ load().catch(function(e){ alert(e.message); }); });
+  $("#csv").addEventListener("click", csv);
+  $("#out").addEventListener("click", function(){ store(""); pin = ""; leads = []; clearInterval(timer); show(false); $("#pin").value = ""; });
+  if (saved()) start(saved());
+})();
+</script>
+</body>
+</html>
