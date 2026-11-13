@@ -43,7 +43,7 @@ Nothing else needs to change. When you tell us the final address, we will send o
 
 The form opens as a pop-up: by itself 3 seconds after landing (once per visit), and from every "Get My Offer", "Explore Offer" and "Help Me Choose" button. "Explore Offer" pre-selects that tile's course area.
 
-Fields: **Full Name, Mobile Number, Email Address, Course**. The Course list is: Project Management, SAFe & Agile, Generative AI, IT Service Management, All courses, Not sure yet.
+Fields: **Full Name, Mobile Number, Email Address, Course**. The Course list is: Project Management, SAFe & Agile, Generative AI, IT Service Management, Not sure yet. (The API also still accepts "All courses", which the form offered for a few hours on 13 November.)
 
 On submit the page sends one `POST` to `/api/lead` (on other hosts: `https://blackfridaykh.vercel.app/api/lead`) with a `text/plain` JSON body, so no CORS preflight is needed:
 
@@ -121,6 +121,5 @@ npx vercel deploy --prod
 
 ## Still open with the KnowledgeHut team
 
-- A consent line and privacy / terms links for the form (none were supplied, so none are shown).
-- The toolkit FAQ answer still carries the placeholder "[Insert confirmed toolkit contents and eligibility.]".
+- A consent line and privacy / terms links for the form. None were supplied, so none are shown; the legal text is due on Monday 16 November.
 - An official badge for PMI-CPMAI (the page shows the PMI partner badge instead).
