@@ -1,6 +1,6 @@
 # upGrad KnowledgeHut · Black Friday Sale 2026
 
-The landing page for upGrad KnowledgeHut's Black Friday Sale (15 to 30 November 2026): up to 70% off on courses, plus the Ultimate Skills Toolkit with eligible enrolments.
+The landing page for upGrad KnowledgeHut's Black Friday Sale (goes live Monday 16 November 2026): up to 70% off on courses, plus the Ultimate Skills Toolkit with eligible enrolments.
 
 - **Live site:** https://blackfridaykh.vercel.app
 - **Leads dashboard:** https://blackfridaykh.vercel.app/admin (PIN-protected; ask the marketing team for the PIN)
@@ -91,7 +91,11 @@ None of these are in this repository. Ask the marketing team.
 ## Editing the page
 
 - **Copy, course names, course links, FAQs:** `index.html`.
-- **Sale end and the last-three-days lines:** `SALE_END` and `DAY_MSG` at the "countdown" section of `app.js`. The sale is set to end at 23:59:59 IST on 30 November 2026. Add `?date=2026-11-29` to the link to preview a day's line.
+- **The countdown:** the "countdown" section of `app.js`.
+  - `SALE_END` is the end of the 10-day countdown: 23:59:59 IST on 26 November 2026, so the timer reads "10 days" on launch day (16 Nov).
+  - After `SALE_END` the timer does not stop. Every day it shows the hours left until midnight (India time) and starts again the next day. There is no "sale ended" state: **take the page down, or change this, when the offer closes.**
+  - `DAY_MSG` holds the three closing lines, shown on 28, 29 and 30 November. From 30 November on, the last line stays.
+  - Add `?date=2026-11-29` to the link to preview any day.
 - **Course list in the form:** the `<select id="fCourse">` in `index.html`, the `COURSES` list in `api/lead.js`, and the `COURSES` list plus the course filter in `admin.html`. Keep the three in step, or the API will reject the new value.
 - **Pop-up delay:** `POP_DELAY` in `page.js` (milliseconds).
 - After changing `styles.css`, `app.js`, `page.js` or `device.js`, bump the `?v=` number on its tag in `index.html` so browsers fetch the new file.
@@ -118,4 +122,5 @@ npx vercel deploy --prod
 
 - A consent line and privacy / terms links for the form (none were supplied, so none are shown).
 - The toolkit FAQ answer still carries the placeholder "[Insert confirmed toolkit contents and eligibility.]".
-- Official badges for PMI-CPMAI and for the three SAFe courses (the page shows the PMI partner badge and the SAFe mark instead).
+- An official badge for PMI-CPMAI (the page shows the PMI partner badge instead).
+- What the page should do once the offer really closes: the timer keeps restarting every 24 hours until someone changes it.

@@ -193,15 +193,19 @@
   }
 
   /* ---------- countdown ---------- */
-  // Copy doc: a regular timer till the 27th, then one line each for the 28th, 29th and 30th.
-  // The sale is taken to end at midnight on 30 Nov 2026, India time.
-  var SALE_END = new Date("2026-11-30T23:59:59+05:30").getTime();
+  // The page goes live on Monday 16 Nov 2026 and the timer runs for 10 days from there: on launch day it
+  // reads "10 days", and it reaches zero at the end of 26 Nov, India time. Change SALE_END to move it.
+  // After that the timer never stops: every day it counts down the hours left until midnight (India time),
+  // and starts again the next day.
+  var SALE_END = new Date("2026-11-26T23:59:59+05:30").getTime();
+  // The closing lines, by date in November 2026 (India time). From the 30th onwards the last line stays.
   var DAY_MSG = {
     28: "The deals are still here. The clock is ticking",
     29: "1 day left. Find your skill today.",
     30: "Last chance at Black Friday prices. Act now."
   };
-  // Reviewers: add ?date=2026-11-29 to the link to see that day's line.
+  var LAST_MSG_FROM = new Date("2026-11-30T00:00:00+05:30").getTime();
+  // Reviewers: add ?date=2026-11-25 to the link to see that day.
   var fakeDate = new URLSearchParams(location.search).get("date");
   var clockShift = fakeDate ? new Date(fakeDate + "T10:00:00+05:30").getTime() - Date.now() : 0;
   if (isNaN(clockShift)) clockShift = 0;
@@ -212,14 +216,16 @@
   function two(n) { return (n < 10 ? "0" : "") + n; }
   function tick() {
     var now = Date.now() + clockShift;
-    var ist = new Date(now + 5.5 * 3600 * 1000);
+    var IST = 5.5 * 3600 * 1000, DAY = 86400000;
+    var ist = new Date(now + IST);
     var inNov = ist.getUTCFullYear() === 2026 && ist.getUTCMonth() === 10;
-    var ended = now > SALE_END;
-    var msg = !ended && inNov ? DAY_MSG[ist.getUTCDate()] || "" : "";
+    var msg = now >= LAST_MSG_FROM ? DAY_MSG[30] : (inNov ? DAY_MSG[ist.getUTCDate()] || "" : "");
     cMsg.textContent = msg;
     cMsg.hidden = !msg;
-    cLabel.textContent = ended ? "Sale ended" : "Ends in";
-    var s = Math.max(0, Math.floor((SALE_END - now) / 1000));
+    cLabel.textContent = "Ends in";
+    // up to the end of the 10 days: the real countdown. After it: the hours left today, starting again each midnight.
+    var target = now <= SALE_END ? SALE_END : (Math.floor((now + IST) / DAY) + 1) * DAY - IST - 1000;
+    var s = Math.max(0, Math.floor((target - now) / 1000));
     var v = [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60];
     for (var i = 0; i < 4; i++) cEls[i].textContent = two(v[i]);
   }
