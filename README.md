@@ -93,8 +93,9 @@ None of these are in this repository. Ask the marketing team.
 - **Copy, course names, course links, FAQs:** `index.html`.
 - **The countdown:** the "countdown" section of `app.js`.
   - `SALE_END` is the end of the 10-day countdown: 23:59:59 IST on 26 November 2026, so the timer reads "10 days" on launch day (16 Nov).
-  - After `SALE_END` the timer does not stop. Every day it shows the hours left until midnight (India time) and starts again the next day. There is no "sale ended" state: **take the page down, or change this, when the offer closes.**
-  - `DAY_MSG` holds the three closing lines, shown on 28, 29 and 30 November. From 30 November on, the last line stays.
+  - From 27 to 30 November the timer shows the hours left until midnight (India time) and starts again each day.
+  - `DAY_MSG` holds the three closing lines, shown on 28, 29 and 30 November.
+  - From 1 December (`TIMER_OFF_FROM`) the timer and its line are hidden. The rest of the page stays as it is, so the sale page keeps working without a countdown.
   - Add `?date=2026-11-29` to the link to preview any day.
 - **Course list in the form:** the `<select id="fCourse">` in `index.html`, the `COURSES` list in `api/lead.js`, and the `COURSES` list plus the course filter in `admin.html`. Keep the three in step, or the API will reject the new value.
 - **Pop-up delay:** `POP_DELAY` in `page.js` (milliseconds).
@@ -123,4 +124,3 @@ npx vercel deploy --prod
 - A consent line and privacy / terms links for the form (none were supplied, so none are shown).
 - The toolkit FAQ answer still carries the placeholder "[Insert confirmed toolkit contents and eligibility.]".
 - An official badge for PMI-CPMAI (the page shows the PMI partner badge instead).
-- What the page should do once the offer really closes: the timer keeps restarting every 24 hours until someone changes it.

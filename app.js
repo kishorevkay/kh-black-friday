@@ -195,16 +195,16 @@
   /* ---------- countdown ---------- */
   // The page goes live on Monday 16 Nov 2026 and the timer runs for 10 days from there: on launch day it
   // reads "10 days", and it reaches zero at the end of 26 Nov, India time. Change SALE_END to move it.
-  // After that the timer never stops: every day it counts down the hours left until midnight (India time),
-  // and starts again the next day.
+  // From 27 to 30 Nov it counts down the hours left until midnight (India time), starting again each day.
   var SALE_END = new Date("2026-11-26T23:59:59+05:30").getTime();
-  // The closing lines, by date in November 2026 (India time). From the 30th onwards the last line stays.
+  // The closing lines, by date in November 2026 (India time).
   var DAY_MSG = {
     28: "The deals are still here. The clock is ticking",
     29: "1 day left. Find your skill today.",
     30: "Last chance at Black Friday prices. Act now."
   };
-  var LAST_MSG_FROM = new Date("2026-11-30T00:00:00+05:30").getTime();
+  // From 1 December the sale page stays up but the timer and its line are hidden.
+  var TIMER_OFF_FROM = new Date("2026-12-01T00:00:00+05:30").getTime();
   // Reviewers: add ?date=2026-11-25 to the link to see that day.
   var fakeDate = new URLSearchParams(location.search).get("date");
   var clockShift = fakeDate ? new Date(fakeDate + "T10:00:00+05:30").getTime() - Date.now() : 0;
@@ -212,6 +212,7 @@
 
   var cLabel = document.getElementById("cLabel");
   var cMsg = document.getElementById("cMsg");
+  var cBox = document.getElementById("count");
   var cEls = ["cD", "cH", "cM", "cS"].map(function (id) { return document.getElementById(id); });
   function two(n) { return (n < 10 ? "0" : "") + n; }
   function tick() {
@@ -219,9 +220,12 @@
     var IST = 5.5 * 3600 * 1000, DAY = 86400000;
     var ist = new Date(now + IST);
     var inNov = ist.getUTCFullYear() === 2026 && ist.getUTCMonth() === 10;
-    var msg = now >= LAST_MSG_FROM ? DAY_MSG[30] : (inNov ? DAY_MSG[ist.getUTCDate()] || "" : "");
+    var off = now >= TIMER_OFF_FROM;
+    cBox.hidden = off;
+    var msg = !off && inNov ? DAY_MSG[ist.getUTCDate()] || "" : "";
     cMsg.textContent = msg;
     cMsg.hidden = !msg;
+    if (off) return;
     cLabel.textContent = "Ends in";
     // up to the end of the 10 days: the real countdown. After it: the hours left today, starting again each midnight.
     var target = now <= SALE_END ? SALE_END : (Math.floor((now + IST) / DAY) + 1) * DAY - IST - 1000;
