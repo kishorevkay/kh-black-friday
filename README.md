@@ -43,19 +43,19 @@ Nothing else needs to change. When you tell us the final address, we will send o
 
 The form opens as a pop-up: by itself 3 seconds after landing (once per visit), and from every "Get My Offer", "Explore Offer" and "Help Me Choose" button. "Explore Offer" pre-selects that tile's course area.
 
-Fields: **Full Name, Mobile Number, Email Address, Course**. The Course list is: Project Management, SAFe & Agile, Generative AI, IT Service Management, Not sure yet. (The API also still accepts "All courses", which the form offered for a few hours on 13 November.)
+Fields: **Full Name, Mobile Number, Email Address, Course**, plus a **marketing-communications consent tick** (required, unticked by default; added 16 Nov at KH's request). The Course list is: Project Management, SAFe & Agile, Generative AI, IT Service Management, Not sure yet. (The API also still accepts "All courses", which the form offered for a few hours on 13 November.)
 
 On submit the page sends one `POST` to `/api/lead` (on other hosts: `https://blackfridaykh.vercel.app/api/lead`) with a `text/plain` JSON body, so no CORS preflight is needed:
 
 ```json
-{ "id": "<random id made in the browser>", "name": "…", "phone": "…", "email": "…", "course": "…", "source": "?utm_source=…", "ref": "<referring page>" }
+{ "id": "<random id made in the browser>", "name": "…", "phone": "…", "email": "…", "course": "…", "consent": true, "consentAt": "<ISO time the box was ticked>", "source": "?utm_source=…", "ref": "<referring page>" }
 ```
 
 The API validates it again, rate-limits per IP (60 a minute), and stores:
 
-`id`, `created`, `updated`, `name`, `phone`, `email`, `course`, `source` (the landing link's query string: UTM tags, `fbclid`, `gclid`), `ref`, `site` (which copy of the page sent it, for example `www.upgrad.com` or `blackfridaykh.vercel.app`), `device` (`mobile` / `desktop`).
+`id`, `created`, `updated`, `name`, `phone`, `email`, `course`, `consent` (true/false) and `consentAt` (kept only if it is not in the future or over a day old, else server time), `source` (the landing link's query string: UTM tags, `fbclid`, `gclid`), `ref`, `site` (which copy of the page sent it, for example `www.upgrad.com` or `blackfridaykh.vercel.app`), `device` (`mobile` / `desktop`).
 
-One lead per page load: a double press or a retry updates the same row.
+One lead per page load: a double press or a retry updates the same row. Leads that arrive WITHOUT consent (from a copy of the page published before 16 Nov, which has no tick box) are still saved, with `consent: false`, so no lead is lost; the dashboard shows Yes / No.
 
 ### The dashboard
 
@@ -90,7 +90,7 @@ None of these are in this repository. Ask the marketing team.
 
 ## Editing the page
 
-- **Copy, course names, course links, FAQs:** `index.html`.
+- **Copy, course names, course links, FAQs, the consent sentence and the disclaimer:** `index.html`. The disclaimer is word for word from KH's email of 16 Nov; its two links (Refund Policy, T&Cs) are the email's own links. Do not edit it without KH legal.
 - **The countdown:** the "countdown" section of `app.js`.
   - `SALE_END` is the end of the 10-day countdown: 23:59:59 IST on 26 November 2026, so the timer reads "10 days" on launch day (16 Nov).
   - From 27 to 30 November the timer shows the hours left until midnight (India time) and starts again each day.
@@ -101,7 +101,7 @@ None of these are in this repository. Ask the marketing team.
 - **Pop-up delay:** `POP_DELAY` in `page.js` (milliseconds).
 - After changing `styles.css`, `app.js`, `page.js` or `device.js`, bump the `?v=` number on its tag in `index.html` so browsers fetch the new file.
 
-Logos and badges in `assets/logos/` are the official files from knowledgehut.com, resized. Third-party marks (PMI, PRINCE2, SAFe, ITIL) must not be redrawn or regenerated.
+Logos and badges in `assets/logos/` are the official files from knowledgehut.com, resized. Third-party marks (PMI, PRINCE2, SAFe, ITIL) must not be redrawn or regenerated. The PMI-CPMAI badge was supplied by the KH team on 16 Nov.
 
 ## Running it locally
 
@@ -122,4 +122,3 @@ npx vercel deploy --prod
 ## Still open with the KnowledgeHut team
 
 - A consent line and privacy / terms links for the form. None were supplied, so none are shown; the legal text is due on Monday 16 November.
-- An official badge for PMI-CPMAI (the page shows the PMI partner badge instead).

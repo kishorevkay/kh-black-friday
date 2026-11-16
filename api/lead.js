@@ -22,6 +22,13 @@ export default async function handler(req, res) {
   const course = COURSES.includes(b.course) ? b.course : "";
   if (name.length < 2 || !phone || !email || !course) return res.status(400).json({ error: "name, mobile, email and course are needed" });
 
+  // Marketing consent (added 16 Nov). The page requires the tick, but leads WITHOUT it are still saved
+  // (consent: false): a copy of the page published before 16 Nov has no tick box, and its leads must not be lost.
+  const consent = b.consent === true;
+  // consentAt is the browser's clock; keep it only if it is plausible (not in the future, not over a day old), else use server time
+  const tAt = typeof b.consentAt === "string" ? Date.parse(b.consentAt) : NaN, tNow = Date.now();
+  const consentAt = consent && !isNaN(tAt) && tAt <= tNow + 60000 && tAt >= tNow - 86400000 ? new Date(tAt).toISOString() : "";
+
   try {
     // light abuse guard: 60 writes per IP per fixed 60 s window
     const rl = `${P}rl:${clientIp(req)}`;
@@ -34,6 +41,7 @@ export default async function handler(req, res) {
     const row = {
       id, created: prev.created || now, updated: now,
       name, phone, email, course,
+      consent: prev.consent || consent, consentAt: prev.consentAt || (consent ? consentAt || now : ""),
       source: prev.source || cleanText(b.source, 400), // the landing link's query string: UTM tags, fbclid, gclid
       ref: prev.ref || cleanText(b.ref, 200),          // the referring page
       site: prev.site || siteOf(req),

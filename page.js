@@ -31,6 +31,19 @@
     form: document.getElementById("eForm")
   };
   var submitBtn = document.getElementById("fSubmit");
+  var consentBox = document.getElementById("fConsent"), consentErr = document.getElementById("eConsent"), consentAt = "";
+  function checkConsent() {
+    if (!consentBox) return true; // an older page without the tick box: still send the lead (stored as consent: false)
+    var ok = consentBox.checked;
+    consentErr.textContent = ok ? "" : "Tick the box to continue";
+    consentBox.closest(".field").classList.toggle("bad", !ok);
+    consentBox.setAttribute("aria-invalid", ok ? "false" : "true");
+    return ok;
+  }
+  if (consentBox) consentBox.addEventListener("change", function () {
+    consentAt = consentBox.checked ? new Date().toISOString() : "";
+    if (consentErr && consentErr.textContent) checkConsent();
+  });
 
   function check(key) {
     var v = f[key].value.trim(), msg = "";
@@ -64,8 +77,14 @@
     Object.keys(f).forEach(function (key) {
       if (!check(key)) { ok = false; if (!first) first = f[key]; }
     });
+    if (!checkConsent()) { ok = false; if (!first) first = consentBox; }
     e.form.textContent = "";
-    if (!ok) { first.focus(); return; }
+    if (!ok) {
+      first.focus({ preventScroll: true });
+      // on short phones the pop-up scrolls: bring the whole field and its message into view, not just the input
+      first.closest(".field").scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return;
+    }
     if (!LEAD_API) { done(false); return; }
 
     var lead = {
@@ -74,6 +93,8 @@
       phone: f.phone.value.trim(),
       email: f.email.value.trim(),
       course: f.course.value,
+      consent: !!(consentBox && consentBox.checked),
+      consentAt: consentBox && consentBox.checked ? consentAt || new Date().toISOString() : "",
       source: location.search.slice(0, 400),
       ref: document.referrer.slice(0, 200)
     };
