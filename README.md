@@ -90,7 +90,7 @@ None of these are in this repository. Ask the marketing team.
 
 ## Editing the page
 
-- **Copy, course names, course links, FAQs, the consent sentence and the disclaimer:** `index.html`. The disclaimer is word for word from KH's email of 16 Nov; its two links (Refund Policy, T&Cs) are the email's own links. Do not edit it without KH legal.
+- **Copy, course names, course links, FAQs, the toolkit "Bonus" card in the hero, the consent sentence and the disclaimer:** `index.html`. The disclaimer is word for word from KH's email of 16 Nov; its two links (Refund Policy, T&Cs) are the email's own links. Do not edit it without KH legal.
 - **The countdown:** the "countdown" section of `app.js`.
   - `SALE_END` is the end of the 10-day countdown: 23:59:59 IST on 26 November 2026, so the timer reads "10 days" on launch day (16 Nov).
   - From 27 to 30 November the timer shows the hours left until midnight (India time) and starts again each day.
@@ -119,6 +119,7 @@ then open http://localhost:5260. With the API as well, use the Vercel CLI (`verc
 npx vercel deploy --prod
 ```
 
-## Still open with the KnowledgeHut team
+## Legal pieces on the page (from KH, 16 Nov)
 
-- A consent line and privacy / terms links for the form. None were supplied, so none are shown; the legal text is due on Monday 16 November.
+- The consent tick in the form, the age FAQ and the disclaimer at the bottom (Refund Policy and T&Cs links).
+- "Our Privacy Policy" (https://www.knowledgehut.com/privacy-policy) and the © line under the disclaimer.
