@@ -102,13 +102,24 @@ img { display: block; }
   .bonus .b-tag { margin: 0 2px 0 0; padding: 2px 7px; font-size: 9.5px; vertical-align: 1px; }
   .bonus .b-txt { display: inline; }
   .bonus .amt { font-size: 1.2em; }
+  /* 28 to 30 Nov the day line adds a row: a slightly smaller pass keeps the timer above the sticky button */
+  :root:has(#cMsg:not([hidden])) { --pw: min(60vw, 26svh, 300px); }
+  .copy:has(#cMsg:not([hidden])) { gap: 8px; }
 }
 @media (min-width: 900px) {
   .lede.bonus { max-width: 46ch; padding: 18px 22px 18px 24px; font-size: 17px; }
   .bonus .b-tag { font-size: 12px; }
 }
 .c-msg { font-size: 13px; font-weight: 700; }
-.c-msg[hidden], .count[hidden] { display: none; }
+.c-msg[hidden], .count[hidden], .c-ext[hidden] { display: none; }
+/* "Sale extended" tag, 25 to 30 Nov (app.js): a ribbon on the top edge of the timer, so it adds no height on small phones */
+.count { position: relative; }
+.count.is-ext { margin-top: 8px; padding-top: 14px; }
+.c-ext { position: absolute; left: 50%; top: 0; transform: translate(-50%, -55%); display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; background: var(--red); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .1em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; box-shadow: 0 6px 18px rgba(230,5,20,.4); }
+.c-ext i { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: extPulse 1.6s ease-in-out infinite; }
+@keyframes extPulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .c-ext i { animation: none; } }
+@media (min-width: 900px) { .c-ext { left: 22px; transform: translateY(-55%); font-size: 11px; padding: 5px 13px; } .count.is-ext { padding-top: 16px; } }
 h1 { font-size: clamp(22px, 6.6vw, 30px); font-weight: 800; line-height: 1.08; letter-spacing: -.02em; }
 .count { display: flex; align-items: baseline; gap: 10px; padding: 9px 18px; border-radius: 999px; font-variant-numeric: tabular-nums; }
 .c-label { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }

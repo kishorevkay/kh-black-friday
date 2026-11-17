@@ -193,42 +193,46 @@
   }
 
   /* ---------- countdown ---------- */
-  // The page goes live on Monday 16 Nov 2026 and the timer runs for 10 days from there: on launch day it
-  // reads "10 days", and it reaches zero at the end of 26 Nov, India time. Change SALE_END to move it.
-  // From 27 to 30 Nov it counts down the hours left until midnight (India time), starting again each day.
-  var SALE_END = new Date("2026-11-26T23:59:59+05:30").getTime();
+  // KH's schedule (changed 17 Nov 2026), all India time:
+  //   - until the end of 24 Nov: "Ends in" counts down to 24 Nov 11:59:59 PM (SALE_END);
+  //   - 25 to 30 Nov: a red "Sale extended till 30 Nov" tag shows and the timer counts down to 30 Nov 11:59:59 PM (EXT_END);
+  //   - from 1 Dec (TIMER_OFF_FROM): the timer, the tag and the day lines are hidden; the page stays up.
+  var SALE_END = new Date("2026-11-24T23:59:59+05:30").getTime();
+  var EXT_END = new Date("2026-11-30T23:59:59+05:30").getTime();
   // The closing lines, by date in November 2026 (India time).
   var DAY_MSG = {
     28: "The deals are still here. The clock is ticking",
     29: "1 day left. Find your skill today.",
     30: "Last chance at Black Friday prices. Act now."
   };
-  // From 1 December the sale page stays up but the timer and its line are hidden.
   var TIMER_OFF_FROM = new Date("2026-12-01T00:00:00+05:30").getTime();
-  // Reviewers: add ?date=2026-11-25 to the link to see that day.
+  // Reviewers: add ?date=2026-11-25 to the link to see that day (at 10 AM India time),
+  // or ?date=2026-11-24T23:59:50 for an exact India time.
   var fakeDate = new URLSearchParams(location.search).get("date");
-  var clockShift = fakeDate ? new Date(fakeDate + "T10:00:00+05:30").getTime() - Date.now() : 0;
+  var clockShift = fakeDate ? new Date(fakeDate + (fakeDate.indexOf("T") > 0 ? "" : "T10:00:00") + "+05:30").getTime() - Date.now() : 0;
   if (isNaN(clockShift)) clockShift = 0;
 
   var cLabel = document.getElementById("cLabel");
   var cMsg = document.getElementById("cMsg");
+  var cExt = document.getElementById("cExt");
   var cBox = document.getElementById("count");
   var cEls = ["cD", "cH", "cM", "cS"].map(function (id) { return document.getElementById(id); });
   function two(n) { return (n < 10 ? "0" : "") + n; }
   function tick() {
     var now = Date.now() + clockShift;
-    var IST = 5.5 * 3600 * 1000, DAY = 86400000;
+    var IST = 5.5 * 3600 * 1000;
     var ist = new Date(now + IST);
     var inNov = ist.getUTCFullYear() === 2026 && ist.getUTCMonth() === 10;
     var off = now >= TIMER_OFF_FROM;
+    var ext = !off && now > SALE_END;
     cBox.hidden = off;
+    if (cExt) { cExt.hidden = !ext; cBox.classList.toggle("is-ext", ext); }
     var msg = !off && inNov ? DAY_MSG[ist.getUTCDate()] || "" : "";
     cMsg.textContent = msg;
     cMsg.hidden = !msg;
     if (off) return;
     cLabel.textContent = "Ends in";
-    // up to the end of the 10 days: the real countdown. After it: the hours left today, starting again each midnight.
-    var target = now <= SALE_END ? SALE_END : (Math.floor((now + IST) / DAY) + 1) * DAY - IST - 1000;
+    var target = ext ? EXT_END : SALE_END;
     var s = Math.max(0, Math.floor((target - now) / 1000));
     var v = [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60];
     for (var i = 0; i < 4; i++) cEls[i].textContent = two(v[i]);

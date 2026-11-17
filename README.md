@@ -91,12 +91,12 @@ None of these are in this repository. Ask the marketing team.
 ## Editing the page
 
 - **Copy, course names, course links, FAQs, the toolkit "Bonus" card in the hero, the consent sentence and the disclaimer:** `index.html`. The disclaimer is word for word from KH's email of 16 Nov; its two links (Refund Policy, T&Cs) are the email's own links. Do not edit it without KH legal.
-- **The countdown:** the "countdown" section of `app.js`.
-  - `SALE_END` is the end of the 10-day countdown: 23:59:59 IST on 26 November 2026, so the timer reads "10 days" on launch day (16 Nov).
-  - From 27 to 30 November the timer shows the hours left until midnight (India time) and starts again each day.
+- **The countdown:** the "countdown" section of `app.js` (schedule changed by KH on 17 Nov). All times are India time.
+  - Until the end of 24 November, "Ends in" counts down to 24 Nov 11:59:59 PM (`SALE_END`).
+  - 25 to 30 November: a red "Sale extended till 30 Nov" tag sits on the timer, and the timer counts down to 30 Nov 11:59:59 PM (`EXT_END`).
   - `DAY_MSG` holds the three closing lines, shown on 28, 29 and 30 November.
-  - From 1 December (`TIMER_OFF_FROM`) the timer and its line are hidden. The rest of the page stays as it is, so the sale page keeps working without a countdown.
-  - Add `?date=2026-11-29` to the link to preview any day.
+  - From 1 December (`TIMER_OFF_FROM`) the timer, the tag and the line are hidden. The rest of the page stays as it is.
+  - Add `?date=2026-11-29` to the link to preview any day (at 10 AM), or `?date=2026-11-24T23:59:50` for an exact moment.
 - **Course list in the form:** the `<select id="fCourse">` in `index.html`, the `COURSES` list in `api/lead.js`, and the `COURSES` list plus the course filter in `admin.html`. Keep the three in step, or the API will reject the new value.
 - **Pop-up delay:** `POP_DELAY` in `page.js` (milliseconds).
 - After changing `styles.css`, `app.js`, `page.js` or `device.js`, bump the `?v=` number on its tag in `index.html` so browsers fetch the new file.
