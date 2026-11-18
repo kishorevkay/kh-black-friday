@@ -15,7 +15,7 @@ A plain static page plus two serverless functions. No framework, no build step, 
 
 | Path | What it is |
 |---|---|
-| `index.html` | The whole page: hero with the Black Friday pass, the lead form pop-up, the four course areas, FAQs, final call to action. **All copy, course names and course links live here.** |
+| `index.html` | The whole page: hero with the Black Friday pass, the lead form pop-up, the four course areas, the 7-course Ultimate Skills Toolkit (`#toolkit`), the 4 free self-paced courses (`#self-paced`), FAQs, final call to action. **All copy, course names and course links live here.** |
 | `styles.css` | All styles. Phone first; desktop layout from 900 px. |
 | `app.js` | The hero: the "Close the Gap" word wall that slides with the scroll, the swinging pass, the countdown. |
 | `page.js` | The lead form (validation, pop-up, sending the lead), the offer buttons, the scroll-linked word strips. |
@@ -53,13 +53,13 @@ On submit the page sends one `POST` to `/api/lead` (on other hosts: `https://bla
 
 The API validates it again, rate-limits per IP (60 a minute), and stores:
 
-`id`, `created`, `updated`, `name`, `phone`, `email`, `course`, `consent` (true/false) and `consentAt` (kept only if it is not in the future or over a day old, else server time), `source` (the landing link's query string: UTM tags, `fbclid`, `gclid`), `ref`, `site` (which copy of the page sent it, for example `www.upgrad.com` or `blackfridaykh.vercel.app`), `device` (`mobile` / `desktop`).
+`id`, `created`, `updated`, `name`, `phone`, `email`, `course`, `consent` (true/false) and `consentAt` (kept only if it is not in the future or over a day old, else server time), `source` (the landing link's query string: UTM tags, `fbclid`, `gclid`), `ref`, `site` (which copy of the page sent it, for example `www.upgrad.com` or `blackfridaykh.vercel.app`), `device` (`mobile` / `desktop`), and from 18 Nov `country` (ISO code, e.g. `IN`), `region` and `city`: the visitor's location from Vercel's IP lookup (approximate; VPNs and mobile networks can show a nearby city). Leads saved before that show "Not recorded".
 
 One lead per page load: a double press or a retry updates the same row. Leads that arrive WITHOUT consent (from a copy of the page published before 16 Nov, which has no tick box) are still saved, with `consent: false`, so no lead is lost; the dashboard shows Yes / No.
 
 ### The dashboard
 
-`/admin` asks for the PIN, then shows: total leads, today's leads, a count per course, leads from ads, a search box, filters by course and by source, the table, and **Download CSV** (exports what the filters show). It refreshes every 30 seconds.
+`/admin` asks for the PIN, then shows: total leads, today's leads, a count per course, leads from ads, leads from India and from outside India, a search box, filters by course, by source and by country, the table (with a Country column: flag, country, city), and **Download CSV** (exports what the filters show, including country, state and city). It refreshes every 30 seconds.
 
 "Came from" is worked out from the UTM tags, ad click ids and the referring site. To track a campaign, add UTM tags to the link, for example:
 

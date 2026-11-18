@@ -69,9 +69,10 @@
       <input id="q" type="search" placeholder="Search name, mobile, email">
       <select id="fCourse"><option value="">All courses</option><option>Project Management</option><option>SAFe &amp; Agile</option><option>Generative AI</option><option>IT Service Management</option><option>All courses</option><option>Not sure yet</option></select>
       <select id="fFrom"><option value="">From anywhere</option></select>
+      <select id="fCountry"><option value="">All countries</option></select>
     </div>
     <div class="wrap"><table>
-      <thead><tr><th>When (IST)</th><th>Name</th><th>Mobile</th><th>Email</th><th>Course</th><th>Consent</th><th>Came from</th><th>Device · site</th></tr></thead>
+      <thead><tr><th>When (IST)</th><th>Name</th><th>Mobile</th><th>Email</th><th>Course</th><th>Consent</th><th>Came from</th><th>Country</th><th>Device · site</th></tr></thead>
       <tbody id="rows"></tbody>
     </table></div>
   </section>
@@ -151,10 +152,15 @@
     return { label: label, detail: [t("utm_campaign"), t("utm_term"), t("utm_content"), t("placement")].filter(Boolean).join(" · "),
       medium: t("utm_medium"), adset: t("utm_term"), placement: t("placement") };
   }
+  /* the visitor's country (saved from 18 Nov, from Vercel's IP lookup); older leads show "Not recorded" */
+  var REGION = null; try { REGION = new Intl.DisplayNames(["en"], { type: "region" }); } catch (e) {}
+  function countryName(l){ if (!l.country) return "Not recorded"; try { return (REGION && REGION.of(l.country)) || l.country; } catch (e) { return l.country; } }
+  function flag(code){ return /^[A-Z]{2}$/.test(code || "") ? String.fromCodePoint.apply(null, code.split("").map(function(c){ return 127397 + c.charCodeAt(0); })) + " " : ""; }
   function filtered(){
-    var q = $("#q").value.trim().toLowerCase(), co = $("#fCourse").value, fr = $("#fFrom").value;
+    var q = $("#q").value.trim().toLowerCase(), co = $("#fCourse").value, fr = $("#fFrom").value, cn = $("#fCountry").value;
     return leads.filter(function(l){
       if (co && l.course !== co) return false;
+      if (cn && countryName(l) !== cn) return false;
       if (fr && cameFrom(l).label !== fr) return false;
       if (!q) return true;
       return [l.name, l.phone, l.email].join(" ").toLowerCase().indexOf(q) > -1;
@@ -166,10 +172,14 @@
     var k = [["Leads", leads.length], ["Today", n(function(l){ return istDay(l.created) === today; })]];
     COURSES.forEach(function(c){ k.push([c, n(function(l){ return l.course === c; })]); });
     k.push(["From ads", n(function(l){ return / ad$/.test(cameFrom(l).label); })]);
+    k.push(["India", n(function(l){ return l.country === "IN"; })], ["Outside India", n(function(l){ return l.country && l.country !== "IN"; })]);
     $("#kpis").innerHTML = k.map(function(x){ return '<div class="kpi"><b>' + x[1] + '</b><span>' + esc(x[0]) + '</span></div>'; }).join("");
     var ff = $("#fFrom"), cur = ff.value, seen = {};
     leads.forEach(function(l){ seen[cameFrom(l).label] = (seen[cameFrom(l).label] || 0) + 1; });
     ff.innerHTML = '<option value="">From anywhere</option>' + Object.keys(seen).sort().map(function(s){ return '<option value="' + esc(s) + '"' + (s === cur ? " selected" : "") + ">" + esc(s) + " (" + seen[s] + ")</option>"; }).join("");
+    var fc = $("#fCountry"), curC = fc.value, seenC = {};
+    leads.forEach(function(l){ var c = countryName(l); seenC[c] = (seenC[c] || 0) + 1; });
+    fc.innerHTML = '<option value="">All countries</option>' + Object.keys(seenC).sort(function(a, b){ return seenC[b] - seenC[a] || a.localeCompare(b); }).map(function(s){ return '<option value="' + esc(s) + '"' + (s === curC ? " selected" : "") + ">" + esc(s) + " (" + seenC[s] + ")</option>"; }).join("");
     var rows = filtered();
     $("#rows").innerHTML = rows.length ? rows.map(function(l){
       var c = cameFrom(l);
@@ -177,15 +187,16 @@
         '<td><span class="tag">' + esc(l.course) + "</span></td>" +
         "<td>" + (l.consent ? 'Yes<div class="sub">' + esc(ist(l.consentAt)) + "</div>" : '<span class="sub">No</span>') + "</td>" +
         "<td>" + esc(c.label) + (c.detail ? '<div class="sub">' + esc(c.detail) + "</div>" : "") + "</td>" +
+        "<td>" + (l.country ? esc(flag(l.country) + countryName(l)) + (l.city || l.region ? '<div class="sub">' + esc([l.city, l.region].filter(Boolean).join(", ")) + "</div>" : "") : '<span class="sub">Not recorded</span>') + "</td>" +
         '<td class="sub">' + esc(l.device) + (l.site ? "<br>" + esc(l.site) : "") + "</td></tr>";
-    }).join("") : '<tr><td colspan="8" class="empty">' + (leads.length ? "No leads match these filters." : "No leads yet.") + "</td></tr>";
+    }).join("") : '<tr><td colspan="9" class="empty">' + (leads.length ? "No leads match these filters." : "No leads yet.") + "</td></tr>";
   }
   function csv(){
-    var cols = ["created_ist", "name", "mobile", "email", "course", "consent", "consent_at_ist", "consent_at_utc", "came_from", "campaign", "ad", "medium", "ad_set_or_keyword", "placement", "referrer", "source", "device", "site", "id"];
+    var cols = ["created_ist", "name", "mobile", "email", "course", "consent", "consent_at_ist", "consent_at_utc", "came_from", "country", "country_code", "state_region", "city", "campaign", "ad", "medium", "ad_set_or_keyword", "placement", "referrer", "source", "device", "site", "id"];
     var cell = function(v){ v = String(v == null ? "" : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
     var lines = [cols.join(",")].concat(filtered().map(function(l){
       var q = new URLSearchParams(l.source || ""), c = cameFrom(l);
-      return [ist(l.created), l.name, l.phone, l.email, l.course, l.consent ? "yes" : "no", l.consent ? ist(l.consentAt) : "", l.consent ? l.consentAt : "", c.label, q.get("utm_campaign"), q.get("utm_content"), c.medium, c.adset, c.placement, l.ref, l.source, l.device, l.site, l.id].map(cell).join(",");
+      return [ist(l.created), l.name, l.phone, l.email, l.course, l.consent ? "yes" : "no", l.consent ? ist(l.consentAt) : "", l.consent ? l.consentAt : "", c.label, l.country ? countryName(l) : "", l.country, l.region, l.city, q.get("utm_campaign"), q.get("utm_content"), c.medium, c.adset, c.placement, l.ref, l.source, l.device, l.site, l.id].map(cell).join(",");
     }));
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));
@@ -194,7 +205,7 @@
   }
 
   $("#login").addEventListener("submit", function(e){ e.preventDefault(); start($("#pin").value.trim()); });
-  ["#q", "#fCourse", "#fFrom"].forEach(function(s){ $(s).addEventListener("input", render); });
+  ["#q", "#fCourse", "#fFrom", "#fCountry"].forEach(function(s){ $(s).addEventListener("input", render); });
   $("#refresh").addEventListener("click", function(){ load().catch(function(e){ alert(e.message); }); });
   $("#csv").addEventListener("click", csv);
   $("#out").addEventListener("click", function(){ store(""); pin = ""; leads = []; clearInterval(timer); show(false); $("#pin").value = ""; });

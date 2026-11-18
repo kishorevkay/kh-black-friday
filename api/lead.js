@@ -46,6 +46,8 @@ export default async function handler(req, res) {
       ref: prev.ref || cleanText(b.ref, 200),          // the referring page
       site: prev.site || siteOf(req),
       device: prev.device || (/Mobi|Android|iPhone/i.test(String(req.headers["user-agent"] || "")) ? "mobile" : "desktop"),
+      // where the visitor is, from Vercel's IP geolocation (added 18 Nov): works for every copy of the page, since they all post here
+      ...geoOf(req, prev),
     };
     await pipeline([
       ["HSET", `${P}leads`, id, JSON.stringify(row)],
@@ -59,6 +61,17 @@ export default async function handler(req, res) {
 }
 
 function safeJson(s) { try { return JSON.parse(s); } catch { return null; } }
+
+// country (ISO code, e.g. "IN"), state/region code and city of the visitor's IP, as Vercel's edge sees it.
+// Approximate (VPNs and mobile networks can show a nearby city); the first submit's values are kept on a retry.
+function geoOf(req, prev) {
+  if (prev.country) return { country: prev.country, region: prev.region || "", city: prev.city || "" };
+  const h = (k) => String(req.headers[k] || "");
+  let city = h("x-vercel-ip-city");
+  try { city = decodeURIComponent(city); } catch {}
+  const country = h("x-vercel-ip-country").toUpperCase();
+  return { country: /^[A-Z]{2}$/.test(country) ? country : "", region: cleanText(h("x-vercel-ip-country-region"), 8), city: cleanText(city, 60) };
+}
 
 // which copy of the page the lead came from, from the browser's Origin / Referer
 function siteOf(req) {
