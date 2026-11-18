@@ -48,6 +48,8 @@ export default async function handler(req, res) {
       device: prev.device || (/Mobi|Android|iPhone/i.test(String(req.headers["user-agent"] || "")) ? "mobile" : "desktop"),
       // where the visitor is, from Vercel's IP geolocation (added 18 Nov): works for every copy of the page, since they all post here
       ...geoOf(req, prev),
+      // the country the person picked in the form (added 18 Nov; a copy of the page from before then sends none)
+      countryChosen: prev.countryChosen || (/^[A-Z]{2}$/.test(String(b.countryChosen || "")) ? String(b.countryChosen) : ""),
     };
     await pipeline([
       ["HSET", `${P}leads`, id, JSON.stringify(row)],

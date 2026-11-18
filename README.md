@@ -43,12 +43,12 @@ Nothing else needs to change. When you tell us the final address, we will send o
 
 The form opens as a pop-up: by itself 3 seconds after landing (once per visit), and from every "Get My Offer", "Explore Offer" and "Help Me Choose" button. "Explore Offer" pre-selects that tile's course area.
 
-Fields: **Full Name, Mobile Number, Email Address, Course**, plus a **marketing-communications consent tick** (required, unticked by default; added 16 Nov at KH's request). The Course list is: Project Management, SAFe & Agile, Generative AI, IT Service Management, Not sure yet. (The API also still accepts "All courses", which the form offered for a few hours on 13 November.)
+Fields: **Full Name, Mobile Number, Email Address, Country** (a dropdown, added 18 Nov; sent as `countryChosen`, the ISO code), **Course**, plus a **marketing-communications consent tick** (required, unticked by default; added 16 Nov at KH's request). The Course list is: Project Management, SAFe & Agile, Generative AI, IT Service Management, Not sure yet. (The API also still accepts "All courses", which the form offered for a few hours on 13 November.)
 
 On submit the page sends one `POST` to `/api/lead` (on other hosts: `https://blackfridaykh.vercel.app/api/lead`) with a `text/plain` JSON body, so no CORS preflight is needed:
 
 ```json
-{ "id": "<random id made in the browser>", "name": "…", "phone": "…", "email": "…", "course": "…", "consent": true, "consentAt": "<ISO time the box was ticked>", "source": "?utm_source=…", "ref": "<referring page>" }
+{ "id": "<random id made in the browser>", "name": "…", "phone": "…", "email": "…", "course": "…", "consent": true, "consentAt": "<ISO time the box was ticked>", "countryChosen": "IN", "source": "?utm_source=…", "ref": "<referring page>" }
 ```
 
 The API validates it again, rate-limits per IP (60 a minute), and stores:

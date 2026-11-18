@@ -23,11 +23,13 @@
     email: document.getElementById("fEmail"),
     course: document.getElementById("fCourse")
   };
+  if (document.getElementById("fCountry")) f.country = document.getElementById("fCountry"); // added 18 Nov
   var e = {
     name: document.getElementById("eName"),
     phone: document.getElementById("ePhone"),
     email: document.getElementById("eEmail"),
     course: document.getElementById("eCourse"),
+    country: document.getElementById("eCountry"),
     form: document.getElementById("eForm")
   };
   var submitBtn = document.getElementById("fSubmit");
@@ -51,6 +53,7 @@
     if (key === "phone" && !/^\+?\d{7,15}$/.test(v.replace(/[\s\-()]/g, ""))) msg = "Enter a valid mobile number";
     if (key === "email" && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/.test(v)) msg = "Enter a valid email address";
     if (key === "course" && !v) msg = "Pick a course";
+    if (key === "country" && !/^[A-Z]{2}$/.test(v)) msg = "Pick your country";
     e[key].textContent = msg;
     f[key].parentNode.classList.toggle("bad", !!msg);
     f[key].setAttribute("aria-invalid", msg ? "true" : "false");
@@ -93,6 +96,7 @@
       phone: f.phone.value.trim(),
       email: f.email.value.trim(),
       course: f.course.value,
+      countryChosen: f.country ? f.country.value : "",
       consent: !!(consentBox && consentBox.checked),
       consentAt: consentBox && consentBox.checked ? consentAt || new Date().toISOString() : "",
       source: location.search.slice(0, 400),

@@ -135,7 +135,7 @@
   function first(list, s){ for (var i = 0; i < list.length; i++) if (list[i][0].test(s)) return list[i][1]; return ""; }
   function cameFrom(l){
     var q = new URLSearchParams(l.source || ""), src = (q.get("utm_source") || "").trim().toLowerCase(), med = (q.get("utm_medium") || "").trim().toLowerCase();
-    var host = String(l.ref || "").toLowerCase().split("/")[0], fromRef = host ? first(REF, host) : "", click = "", label;
+    var host = String(l.ref || "").toLowerCase().replace(/^[a-z][a-z0-9+.-]*:\/\//, "").split(/[\/?#]/)[0], fromRef = host ? first(REF, host) : "", click = "", label;
     for (var i = 0; i < CLICK.length; i++) if (q.has(CLICK[i][0])) { click = CLICK[i][1]; break; }
     // a messaging medium decides first: one platform (e.g. CleverTap) sends email, push and SMS alike
     var ch = /(^|_)(e-?mail|newsletter)($|_)/.test(med) ? "Email" : med === "sms" ? "SMS" : /^push/.test(med) ? "Push notification" : /^whatsapp/.test(med) ? "WhatsApp" : "";
@@ -154,8 +154,18 @@
   }
   /* the visitor's country (saved from 18 Nov, from Vercel's IP lookup); older leads show "Not recorded" */
   var REGION = null; try { REGION = new Intl.DisplayNames(["en"], { type: "region" }); } catch (e) {}
-  function countryName(l){ if (!l.country) return "Not recorded"; try { return (REGION && REGION.of(l.country)) || l.country; } catch (e) { return l.country; } }
+  // the country the person picked in the form (from 18 Nov); for older leads, the one detected from their connection
+  function nameOf(code){ try { return (REGION && REGION.of(code)) || code; } catch (e) { return code; } }
+  function cc(l){ return l.countryChosen || l.country || ""; }
+  function countryName(l){ var c = cc(l); return c ? nameOf(c) : "Not recorded"; }
   function flag(code){ return /^[A-Z]{2}$/.test(code || "") ? String.fromCodePoint.apply(null, code.split("").map(function(c){ return 127397 + c.charCodeAt(0); })) + " " : ""; }
+  function countryCell(l){
+    var where = [l.city, l.region].filter(Boolean).join(", "), det = l.country ? nameOf(l.country) : "";
+    if (l.countryChosen) return esc(flag(l.countryChosen) + nameOf(l.countryChosen)) +
+      (det ? '<div class="sub">Connection: ' + esc([where, det !== nameOf(l.countryChosen) ? det : ""].filter(Boolean).join(", ") || det) + "</div>" : "");
+    if (l.country) return esc(flag(l.country) + det) + '<div class="sub">Detected' + (where ? ": " + esc(where) : "") + "</div>";
+    return '<span class="sub">Not recorded</span>';
+  }
   function filtered(){
     var q = $("#q").value.trim().toLowerCase(), co = $("#fCourse").value, fr = $("#fFrom").value, cn = $("#fCountry").value;
     return leads.filter(function(l){
@@ -172,7 +182,7 @@
     var k = [["Leads", leads.length], ["Today", n(function(l){ return istDay(l.created) === today; })]];
     COURSES.forEach(function(c){ k.push([c, n(function(l){ return l.course === c; })]); });
     k.push(["From ads", n(function(l){ return / ad$/.test(cameFrom(l).label); })]);
-    k.push(["India", n(function(l){ return l.country === "IN"; })], ["Outside India", n(function(l){ return l.country && l.country !== "IN"; })]);
+    k.push(["India", n(function(l){ return cc(l) === "IN"; })], ["Outside India", n(function(l){ return cc(l) && cc(l) !== "IN"; })]);
     $("#kpis").innerHTML = k.map(function(x){ return '<div class="kpi"><b>' + x[1] + '</b><span>' + esc(x[0]) + '</span></div>'; }).join("");
     var ff = $("#fFrom"), cur = ff.value, seen = {};
     leads.forEach(function(l){ seen[cameFrom(l).label] = (seen[cameFrom(l).label] || 0) + 1; });
@@ -187,16 +197,16 @@
         '<td><span class="tag">' + esc(l.course) + "</span></td>" +
         "<td>" + (l.consent ? 'Yes<div class="sub">' + esc(ist(l.consentAt)) + "</div>" : '<span class="sub">No</span>') + "</td>" +
         "<td>" + esc(c.label) + (c.detail ? '<div class="sub">' + esc(c.detail) + "</div>" : "") + "</td>" +
-        "<td>" + (l.country ? esc(flag(l.country) + countryName(l)) + (l.city || l.region ? '<div class="sub">' + esc([l.city, l.region].filter(Boolean).join(", ")) + "</div>" : "") : '<span class="sub">Not recorded</span>') + "</td>" +
+        "<td>" + countryCell(l) + "</td>" +
         '<td class="sub">' + esc(l.device) + (l.site ? "<br>" + esc(l.site) : "") + "</td></tr>";
     }).join("") : '<tr><td colspan="9" class="empty">' + (leads.length ? "No leads match these filters." : "No leads yet.") + "</td></tr>";
   }
   function csv(){
-    var cols = ["created_ist", "name", "mobile", "email", "course", "consent", "consent_at_ist", "consent_at_utc", "came_from", "country", "country_code", "state_region", "city", "campaign", "ad", "medium", "ad_set_or_keyword", "placement", "referrer", "source", "device", "site", "id"];
+    var cols = ["created_ist", "name", "mobile", "email", "course", "consent", "consent_at_ist", "consent_at_utc", "came_from", "country", "country_code", "country_picked_in_form", "connection_country", "connection_state", "connection_city", "campaign", "ad", "medium", "ad_set_or_keyword", "placement", "referrer", "source", "device", "site", "id"];
     var cell = function(v){ v = String(v == null ? "" : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
     var lines = [cols.join(",")].concat(filtered().map(function(l){
       var q = new URLSearchParams(l.source || ""), c = cameFrom(l);
-      return [ist(l.created), l.name, l.phone, l.email, l.course, l.consent ? "yes" : "no", l.consent ? ist(l.consentAt) : "", l.consent ? l.consentAt : "", c.label, l.country ? countryName(l) : "", l.country, l.region, l.city, q.get("utm_campaign"), q.get("utm_content"), c.medium, c.adset, c.placement, l.ref, l.source, l.device, l.site, l.id].map(cell).join(",");
+      return [ist(l.created), l.name, l.phone, l.email, l.course, l.consent ? "yes" : "no", l.consent ? ist(l.consentAt) : "", l.consent ? l.consentAt : "", c.label, cc(l) ? countryName(l) : "", cc(l), l.countryChosen ? "yes" : "no", l.country ? nameOf(l.country) : "", l.region, l.city, q.get("utm_campaign"), q.get("utm_content"), c.medium, c.adset, c.placement, l.ref, l.source, l.device, l.site, l.id].map(cell).join(",");
     }));
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" }));

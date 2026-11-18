@@ -173,6 +173,12 @@ h2 { font-size: clamp(26px, 7.2vw, 46px); font-weight: 800; line-height: 1.08; l
 .field select option { color: #111; }
 .field input:focus, .field select:focus { border-color: var(--white); box-shadow: 0 0 0 3px rgba(230,5,20,.45); }
 .field.bad input, .field.bad select { border-color: #ff5a64; }
+.field select optgroup { color: #666; font-weight: 700; }
+/* Country and Mobile Number sit on one line on every screen */
+.field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 10px; align-items: start; }
+.field-row .field { min-width: 0; }
+.field-row select { text-overflow: ellipsis; }
+@media (min-width: 700px) { .field-row { gap: 12px; } }
 .err { margin-top: 6px; font-size: 12px; font-weight: 600; color: #ff7a82; }
 .err:empty { display: none; }
 .f-err { margin-top: 0; text-align: center; }
